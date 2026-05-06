@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PDF Utility (Merge / Split)</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      }
+      body {
+        margin: 24px;
+        line-height: 1.4;
+      }
+      h1 {
+        margin: 0 0 8px;
+        font-size: 1.5rem;
+      }
+      .help {
+        margin: 0 0 14px;
+        color: #666;
+      }
+      .tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 14px;
+      }
+      .tab-btn,
+      button {
+        border: 1px solid #8886;
+        border-radius: 8px;
+        padding: 8px 14px;
+        background: transparent;
+        cursor: pointer;
+      }
+      .tab-btn.active {
+        font-weight: 700;
+      }
+      .card {
+        border: 1px solid #8884;
+        border-radius: 12px;
+        padding: 14px;
+        margin-bottom: 12px;
+      }
+      .grid {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      }
+      .label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+      .meta {
+        margin-top: 8px;
+        color: #666;
+        min-height: 1.2em;
+      }
+      .preview-canvas {
+        margin-top: 10px;
+        width: 100%;
+        border: 1px solid #8884;
+        border-radius: 6px;
+        background: #fff;
+      }
+      .inline-options {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+      .actions {
+        margin-top: 12px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .status {
+        margin-top: 8px;
+        min-height: 1.2em;
+        color: #666;
+      }
+      iframe {
+        width: 100%;
+        min-height: 620px;
+        border: 1px solid #8884;
+        border-radius: 10px;
+      }
+      [hidden] {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>PDF Utility</h1>
+    <p class="help">ブラウザ内で完結: Merge(表裏交互) / Split(A3見開き→A4分割)</p>
+
+    <div class="tabs">
+      <button id="tabMerge" class="tab-btn active" type="button">Merge</button>
+      <button id="tabSplit" class="tab-btn" type="button">Split</button>
+    </div>
+
+    <section id="mergeSection">
+      <div class="grid">
+        <div class="card">
+          <label class="label" for="frontFile">Front PDF（表面、昇順）</label>
+          <input id="frontFile" type="file" accept="application/pdf" />
+          <div id="frontMeta" class="meta"></div>
+          <canvas id="frontCanvas" class="preview-canvas"></canvas>
+        </div>
+        <div class="card">
+          <label class="label" for="backFile">Back PDF（裏面、逆順でスキャン済み）</label>
+          <input id="backFile" type="file" accept="application/pdf" />
+          <div id="backMeta" class="meta"></div>
+          <canvas id="backCanvas" class="preview-canvas"></canvas>
+        </div>
+      </div>
+      <p class="help">順序: front[0], back[-1], front[1], back[-2], ...（片方が尽きたら残りを追加）</p>
+      <div class="actions">
+        <button id="runMergeBtn" type="button">Merge PDF</button>
+      </div>
+    </section>
+
+    <section id="splitSection" hidden>
+      <div class="card">
+        <label class="label" for="splitInput">Input PDF（A3見開き）</label>
+        <input id="splitInput" type="file" accept="application/pdf" />
+        <div id="splitMeta" class="meta"></div>
+        <canvas id="splitCanvas" class="preview-canvas"></canvas>
+      </div>
+      <div class="card">
+        <div class="inline-options">
+          <label>
+            Rotation:
+            <select id="directionSelect">
+              <option value="cw" selected>cw (時計回り90°)</option>
+              <option value="ccw">ccw (反時計回り90°)</option>
+            </select>
+          </label>
+          <label>
+            Order:
+            <select id="orderSelect">
+              <option value="LR" selected>LR (左→右)</option>
+              <option value="RL">RL (右→左)</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <div class="actions">
+        <button id="runSplitBtn" type="button">Split PDF</button>
+      </div>
+    </section>
+
+    <div class="actions">
+      <a id="downloadLink" hidden>Download result.pdf</a>
+    </div>
+    <div id="status" class="status"></div>
+
+    <section class="card">
+      <h2>Result Preview</h2>
+      <iframe id="resultPreview" title="Result PDF preview"></iframe>
+    </section>
+
+    <script type="module">
+      import { PDFDocument, degrees } from "https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/+esm";
+      import * as pdfjsLib from "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/+esm";
+
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.worker.mjs";
+
+      const tabMerge = document.getElementById("tabMerge");
+      const tabSplit = document.getElementById("tabSplit");
+      const mergeSection = document.getElementById("mergeSection");
+      const splitSection = document.getElementById("splitSection");
+
+      const frontInput = document.getElementById("frontFile");
+      const backInput = document.getElementById("backFile");
+      const splitInput = document.getElementById("splitInput");
+      const frontMeta = document.getElementById("frontMeta");
+      const backMeta = document.getElementById("backMeta");
+      const splitMeta = document.getElementById("splitMeta");
+      const frontCanvas = document.getElementById("frontCanvas");
+      const backCanvas = document.getElementById("backCanvas");
+      const splitCanvas = document.getElementById("splitCanvas");
+      const runMergeBtn = document.getElementById("runMergeBtn");
+      const runSplitBtn = document.getElementById("runSplitBtn");
+      const directionSelect = document.getElementById("directionSelect");
+      const orderSelect = document.getElementById("orderSelect");
+      const statusEl = document.getElementById("status");
+      const downloadLink = document.getElementById("downloadLink");
+      const resultPreview = document.getElementById("resultPreview");
+
+      let currentResultUrl = null;
+
+      function setMode(mode) {
+        const isMerge = mode === "merge";
+        mergeSection.hidden = !isMerge;
+        splitSection.hidden = isMerge;
+        tabMerge.classList.toggle("active", isMerge);
+        tabSplit.classList.toggle("active", !isMerge);
+      }
+
+      tabMerge.addEventListener("click", () => setMode("merge"));
+      tabSplit.addEventListener("click", () => setMode("split"));
+
+      async function fileToBytes(file) {
+        return new Uint8Array(await file.arrayBuffer());
+      }
+
+      async function renderFirstPageToCanvas(bytes, canvas) {
+        const loadingTask = pdfjsLib.getDocument({ data: bytes });
+        const pdf = await loadingTask.promise;
+        const firstPage = await pdf.getPage(1);
+        const baseViewport = firstPage.getViewport({ scale: 1 });
+        const targetWidth = 520;
+        const scale = targetWidth / baseViewport.width;
+        const viewport = firstPage.getViewport({ scale });
+        const ctx = canvas.getContext("2d");
+        canvas.width = Math.floor(viewport.width);
+        canvas.height = Math.floor(viewport.height);
+        await firstPage.render({ canvasContext: ctx, viewport }).promise;
+      }
+
+      async function updateSinglePreview(inputEl, metaEl, canvasEl, label) {
+        const file = inputEl.files?.[0];
+        if (!file) {
+          metaEl.textContent = "";
+          const ctx = canvasEl.getContext("2d");
+          ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+          return;
+        }
+        const bytes = await fileToBytes(file);
+        const pdf = await PDFDocument.load(bytes);
+        metaEl.textContent = `${label}: ${file.name} (${pdf.getPageCount()} pages)`;
+        await renderFirstPageToCanvas(bytes, canvasEl);
+      }
+
+      async function setResult(bytes, filename) {
+        if (currentResultUrl) {
+          URL.revokeObjectURL(currentResultUrl);
+        }
+        const blob = new Blob([bytes], { type: "application/pdf" });
+        currentResultUrl = URL.createObjectURL(blob);
+        resultPreview.src = currentResultUrl;
+        downloadLink.href = currentResultUrl;
+        downloadLink.download = filename;
+        downloadLink.textContent = `Download ${filename}`;
+        downloadLink.hidden = false;
+      }
+
+      frontInput.addEventListener("change", async () => {
+        try {
+          await updateSinglePreview(frontInput, frontMeta, frontCanvas, "Front");
+        } catch (e) {
+          frontMeta.textContent = `Front preview error: ${e.message}`;
+        }
+      });
+
+      backInput.addEventListener("change", async () => {
+        try {
+          await updateSinglePreview(backInput, backMeta, backCanvas, "Back");
+        } catch (e) {
+          backMeta.textContent = `Back preview error: ${e.message}`;
+        }
+      });
+
+      splitInput.addEventListener("change", async () => {
+        try {
+          await updateSinglePreview(splitInput, splitMeta, splitCanvas, "Split Input");
+        } catch (e) {
+          splitMeta.textContent = `Split preview error: ${e.message}`;
+        }
+      });
+
+      runMergeBtn.addEventListener("click", async () => {
+        const frontFile = frontInput.files?.[0];
+        const backFile = backInput.files?.[0];
+        if (!frontFile || !backFile) {
+          statusEl.textContent = "Front と Back の両方のPDFを選択してください。";
+          return;
+        }
+
+        try {
+          statusEl.textContent = "Merging...";
+          const frontPdf = await PDFDocument.load(await fileToBytes(frontFile));
+          const backPdf = await PDFDocument.load(await fileToBytes(backFile));
+          const outPdf = await PDFDocument.create();
+
+          const frontIndices = frontPdf.getPageIndices();
+          const backIndicesReversed = [...backPdf.getPageIndices()].reverse();
+          const maxLen = Math.max(frontIndices.length, backIndicesReversed.length);
+
+          for (let i = 0; i < maxLen; i += 1) {
+            if (i < frontIndices.length) {
+              const [page] = await outPdf.copyPages(frontPdf, [frontIndices[i]]);
+              outPdf.addPage(page);
+            }
+            if (i < backIndicesReversed.length) {
+              const [page] = await outPdf.copyPages(backPdf, [backIndicesReversed[i]]);
+              outPdf.addPage(page);
+            }
+          }
+
+          const mergedBytes = await outPdf.save();
+          await setResult(mergedBytes, "merged.pdf");
+          statusEl.textContent =
+            `front: ${frontIndices.length} pages / back: ${backIndicesReversed.length} pages -> merged: ${outPdf.getPageCount()} pages`;
+        } catch (e) {
+          statusEl.textContent = `Merge error: ${e.message}`;
+        }
+      });
+
+      runSplitBtn.addEventListener("click", async () => {
+        const inputFile = splitInput.files?.[0];
+        if (!inputFile) {
+          statusEl.textContent = "Split対象のPDFを選択してください。";
+          return;
+        }
+
+        const direction = directionSelect.value;
+        const order = orderSelect.value;
+        const rotateDeg = direction === "cw" ? 90 : 270;
+
+        try {
+          statusEl.textContent = "Splitting...";
+          const srcPdf = await PDFDocument.load(await fileToBytes(inputFile));
+          const outPdf = await PDFDocument.create();
+
+          for (const srcIndex of srcPdf.getPageIndices()) {
+            const [orig] = await outPdf.copyPages(srcPdf, [srcIndex]);
+            const width = orig.getWidth();
+            const height = orig.getHeight();
+
+            let leftBox;
+            let rightBox;
+
+            if (width >= height) {
+              const mid = width / 2;
+              leftBox = { x: 0, y: 0, w: mid, h: height };
+              rightBox = { x: mid, y: 0, w: width - mid, h: height };
+            } else {
+              const mid = height / 2;
+              const bottomBox = { x: 0, y: 0, w: width, h: mid };
+              const topBox = { x: 0, y: mid, w: width, h: height - mid };
+              if (direction === "cw") {
+                leftBox = bottomBox;
+                rightBox = topBox;
+              } else {
+                leftBox = topBox;
+                rightBox = bottomBox;
+              }
+            }
+
+            const pair = order === "LR" ? [leftBox, rightBox] : [rightBox, leftBox];
+            for (const box of pair) {
+              const [half] = await outPdf.copyPages(srcPdf, [srcIndex]);
+              half.setCropBox(box.x, box.y, box.w, box.h);
+              half.setMediaBox(box.x, box.y, box.w, box.h);
+              half.setRotation(degrees(rotateDeg));
+              outPdf.addPage(half);
+            }
+          }
+
+          const splitBytes = await outPdf.save();
+          await setResult(splitBytes, "split_a4.pdf");
+          statusEl.textContent =
+            `input: ${srcPdf.getPageCount()} pages -> output: ${outPdf.getPageCount()} pages (direction=${direction}, order=${order})`;
+        } catch (e) {
+          statusEl.textContent = `Split error: ${e.message}`;
+        }
+      });
+    </script>
+  </body>
+</html>

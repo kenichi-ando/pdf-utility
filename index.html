@@ -137,6 +137,7 @@
             <select id="directionSelect">
               <option value="cw" selected>cw (時計回り90°)</option>
               <option value="ccw">ccw (反時計回り90°)</option>
+              <option value="none">none (回転なし)</option>
             </select>
           </label>
           <label>
@@ -321,7 +322,7 @@
 
         const direction = directionSelect.value;
         const order = orderSelect.value;
-        const rotateDeg = direction === "cw" ? 90 : 270;
+        const rotateDeg = direction === "cw" ? 90 : direction === "ccw" ? 270 : 0;
 
         try {
           statusEl.textContent = "Splitting...";
@@ -347,6 +348,9 @@
               if (direction === "cw") {
                 leftBox = bottomBox;
                 rightBox = topBox;
+              } else if (direction === "ccw") {
+                leftBox = topBox;
+                rightBox = bottomBox;
               } else {
                 leftBox = topBox;
                 rightBox = bottomBox;

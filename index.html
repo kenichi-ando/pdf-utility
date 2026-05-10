@@ -11,40 +11,50 @@
     <p class="help">ブラウザだけでPDFを分割・結合</p>
 
     <div class="tabs">
-      <button id="tabSplit" class="tab-btn active" type="button" aria-selected="true">Split &amp; Combine</button>
-      <button id="tabMerge" class="tab-btn" type="button" aria-selected="false">Interleave Merge</button>
+      <button id="tabSplit" class="tab-btn active" type="button" aria-selected="true">見開き分割</button>
+      <button id="tabMerge" class="tab-btn" type="button" aria-selected="false">交互結合</button>
     </div>
 
     <section id="mergeSection" hidden>
+      <div class="card">
+        <h2>交互結合の使い方</h2>
+        <p class="help">
+          1. 表面PDFと裏面PDFを選択<br />
+          2. それぞれのページ順を指定<br />
+          3. <code>PDFを結合</code> を押して結果をダウンロード
+        </p>
+        <img class="usage-image" src="./assets/merge.png" alt="交互結合の説明イメージ" />
+      </div>
+
       <div class="grid">
         <div class="card">
-          <label class="label" for="frontFile">Front PDF（表面）</label>
+          <label class="label" for="frontFile">表面PDF</label>
           <input id="frontFile" type="file" accept="application/pdf" />
           <div id="frontMeta" class="meta"></div>
           <canvas id="frontCanvas" class="preview-canvas"></canvas>
         </div>
         <div class="card">
-          <label class="label" for="backFile">Back PDF（裏面）</label>
+          <label class="label" for="backFile">裏面PDF</label>
           <input id="backFile" type="file" accept="application/pdf" />
           <div id="backMeta" class="meta"></div>
           <canvas id="backCanvas" class="preview-canvas"></canvas>
         </div>
       </div>
-      <p class="help">順序: Front と Back を1ページずつ交互に結合（片方が尽きたら残りを追加）</p>
+      <p class="help">順序: 表面と裏面を1ページずつ交互に結合（片方が尽きたら残りを追加）</p>
       <div class="card">
         <div class="inline-options">
           <label>
-            Front（表面）の順番:
+            表面の順番:
             <select id="frontOrderSelect">
               <option value="asc" selected>先頭から（昇順）</option>
               <option value="desc">末尾から（降順）</option>
             </select>
           </label>
           <label>
-            Back（裏面）の順番:
+            裏面の順番:
             <select id="backOrderSelect">
-              <option value="desc" selected>末尾から（降順）</option>
               <option value="asc">先頭から（昇順）</option>
+              <option value="desc" selected>末尾から（降順）</option>
             </select>
           </label>
         </div>
@@ -56,6 +66,16 @@
 
     <section id="splitSection">
       <div class="card">
+        <h2>見開き分割の使い方</h2>
+        <p class="help">
+          1. 見開きPDFを選択<br />
+          2. 必要に応じて <code>回転</code> と <code>ページ順</code> を設定<br />
+          3. <code>PDFを分割</code> を押して結果をダウンロード
+        </p>
+        <img class="usage-image" src="./assets/split.png" alt="見開き分割の説明イメージ" />
+      </div>
+
+      <div class="card">
         <label class="label" for="splitInput">入力PDF（見開きページを含むPDF）</label>
         <input id="splitInput" type="file" accept="application/pdf" />
         <div id="splitMeta" class="meta"></div>
@@ -66,16 +86,16 @@
           <label>
             回転:
             <select id="directionSelect">
-              <option value="none" selected>none (回転なし)</option>
-              <option value="cw">cw (時計回り90°)</option>
-              <option value="ccw">ccw (反時計回り90°)</option>
+              <option value="none" selected>回転なし</option>
+              <option value="cw">時計回り90°</option>
+              <option value="ccw">反時計回り90°</option>
             </select>
           </label>
           <label>
             ページ順:
             <select id="orderSelect">
-              <option value="LR" selected>LR (左→右)</option>
-              <option value="RL">RL (右→左)</option>
+              <option value="LR" selected>左→右</option>
+              <option value="RL">右→左</option>
             </select>
           </label>
         </div>
@@ -91,13 +111,13 @@
     <div id="status" class="status"></div>
 
     <section class="card">
-      <h2>結果サムネイル（全ページ）</h2>
+      <h2>結果サムネイル</h2>
       <div id="resultThumbnails" class="thumb-grid"></div>
     </section>
 
     <section class="card">
-      <h2>結果プレビュー（詳細確認）</h2>
-      <iframe id="resultPreview" title="Result PDF preview"></iframe>
+      <h2>結果プレビュー</h2>
+      <iframe id="resultPreview" title="結果PDFプレビュー"></iframe>
     </section>
 
     <script type="module" src="./app.js"></script>

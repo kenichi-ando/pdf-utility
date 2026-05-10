@@ -22,7 +22,18 @@ async function renderAllThumbnails(bytes, containerEl, thumbnailTags) {
     const pdf = await pdfjsLib.getDocument({ data: bytes }).promise;
     containerEl.textContent = "";
 
-    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum += 1) {
+    const maxHead = 5;
+    const maxTail = 5;
+    const totalPages = pdf.numPages;
+    const pageNumbersToRender =
+      totalPages > maxHead + maxTail
+        ? [
+            ...Array.from({ length: maxHead }, (_, i) => i + 1),
+            ...Array.from({ length: maxTail }, (_, i) => totalPages - maxTail + i + 1),
+          ]
+        : Array.from({ length: totalPages }, (_, i) => i + 1);
+
+    for (const pageNum of pageNumbersToRender) {
       const page = await pdf.getPage(pageNum);
       const base = page.getViewport({ scale: 1 });
       const scale = 140 / base.width;
@@ -51,6 +62,13 @@ async function renderAllThumbnails(bytes, containerEl, thumbnailTags) {
         wrapper.appendChild(tagRow);
       }
       containerEl.appendChild(wrapper);
+
+      if (totalPages > maxHead + maxTail && pageNum === maxHead) {
+        const ellipsis = document.createElement("div");
+        ellipsis.className = "thumb-ellipsis";
+        ellipsis.textContent = "（途中省略）";
+        containerEl.appendChild(ellipsis);
+      }
     }
   } catch (error) {
     containerEl.textContent = `サムネイル表示エラー: ${error.message}`;

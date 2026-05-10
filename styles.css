@@ -134,6 +134,16 @@ button:hover {
   color: var(--muted);
 }
 
+.usage-image {
+  margin-top: 8px;
+  width: 100%;
+  max-width: 520px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  display: block;
+}
+
 #downloadLink {
   color: var(--primary);
   text-decoration: none;
@@ -167,6 +177,17 @@ iframe {
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 8px;
+}
+
+.thumb-ellipsis {
+  display: grid;
+  place-items: center;
+  min-height: 120px;
+  color: var(--muted);
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  background: #f9fbff;
+  font-size: 0.9rem;
 }
 
 .thumb-item canvas {

@@ -1,26 +1,35 @@
-# ととのえPDF
+# Totonoe PDF
 
-https://kenichi-ando.github.io/pdf-utility/
+Browser-based PDF utility for splitting spread pages and interleaving front/back scans.
 
-## 主なユースケース (Use Cases)
+## End User Guide
 
-- **見開きPDFを1ページずつに整える**  
-  A3見開きなどのPDFを、A4相当の1ページずつに分割して扱いやすくする。
-- **両面スキャンPDFを読み順にまとめる**  
-  表面PDFと裏面PDFを交互に結合し、読み順どおりの1つのPDFにする。
-- **学習・業務の配布資料を整理する**  
-  試験問題、教材、会議資料など、見開き分割やページ順調整が必要なPDF処理に対応。
+For usage instructions, open the website:
 
-## できること (Features)
+- https://kenichi-ando.github.io/pdf-utility/
 
-### 見開き分割 (Split & Combine)
+## Developer Notes
 
-見開きページを2ページに分割。 (Split spread pages into two pages.)
+This repository is a static web app (HTML/CSS/JavaScript) with no build step.
 
-![Split & Combine image](assets/split.png)
+### Local Development
 
-### 交互結合 (Interleave Merge)
+1. Clone the repository and move into the project directory.
+2. Start a local static server (recommended):
 
-表面PDF と 裏面PDF を交互に結合。各PDFの順番指定可。 (Interleave Front and Back PDFs page-by-page with selectable order for each side.)
+```bash
+python3 -m http.server 8080
+```
 
-![Interleave Merge image](assets/merge.png)
+3. Open `http://localhost:8080` in your browser.
+
+Alternative:
+
+- Open `index.html` directly in your browser (no server).
+
+### Main Files
+
+- `index.html`: UI and end-user documentation
+- `app.js`: app entry point
+- `split.js`: spread page split logic
+- `merge.js`: front/back interleave merge logic

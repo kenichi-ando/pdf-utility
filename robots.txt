@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://kenichi-ando.github.io/pdf-utility/sitemap.xml

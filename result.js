@@ -13,39 +13,47 @@ function renderTagRow(tags) {
 }
 
 async function renderAllThumbnails(bytes, containerEl, thumbnailTags) {
+  if (!containerEl) {
+    return;
+  }
+
   containerEl.textContent = "サムネイルを生成中...";
-  const pdf = await pdfjsLib.getDocument({ data: bytes }).promise;
-  containerEl.textContent = "";
+  try {
+    const pdf = await pdfjsLib.getDocument({ data: bytes }).promise;
+    containerEl.textContent = "";
 
-  for (let pageNum = 1; pageNum <= pdf.numPages; pageNum += 1) {
-    const page = await pdf.getPage(pageNum);
-    const base = page.getViewport({ scale: 1 });
-    const scale = 140 / base.width;
-    const viewport = page.getViewport({ scale });
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum += 1) {
+      const page = await pdf.getPage(pageNum);
+      const base = page.getViewport({ scale: 1 });
+      const scale = 140 / base.width;
+      const viewport = page.getViewport({ scale });
 
-    const wrapper = document.createElement("div");
-    wrapper.className = "thumb-item";
+      const wrapper = document.createElement("div");
+      wrapper.className = "thumb-item";
 
-    const canvas = document.createElement("canvas");
-    canvas.width = Math.floor(viewport.width);
-    canvas.height = Math.floor(viewport.height);
-    const ctx = canvas.getContext("2d");
-    await page.render({ canvasContext: ctx, viewport }).promise;
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.floor(viewport.width);
+      canvas.height = Math.floor(viewport.height);
+      const ctx = canvas.getContext("2d");
+      await page.render({ canvasContext: ctx, viewport }).promise;
 
-    const label = document.createElement("div");
-    label.className = "thumb-label";
-    const parity = pageNum % 2 === 0 ? "Even" : "Odd";
-    label.textContent = `Page ${pageNum} (${parity})`;
+      const label = document.createElement("div");
+      label.className = "thumb-label";
+      const parity = pageNum % 2 === 0 ? "Even" : "Odd";
+      label.textContent = `Page ${pageNum} (${parity})`;
 
-    const tags = thumbnailTags?.[pageNum - 1] ?? [];
-    const tagRow = renderTagRow(tags);
+      const tags = thumbnailTags?.[pageNum - 1] ?? [];
+      const tagRow = renderTagRow(tags);
 
-    wrapper.appendChild(canvas);
-    wrapper.appendChild(label);
-    if (tags.length > 0) {
-      wrapper.appendChild(tagRow);
+      wrapper.appendChild(canvas);
+      wrapper.appendChild(label);
+      if (tags.length > 0) {
+        wrapper.appendChild(tagRow);
+      }
+      containerEl.appendChild(wrapper);
     }
-    containerEl.appendChild(wrapper);
+  } catch (error) {
+    containerEl.textContent = `サムネイル表示エラー: ${error.message}`;
   }
 }
 

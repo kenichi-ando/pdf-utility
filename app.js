@@ -26,10 +26,11 @@ const directionSelect = document.getElementById("directionSelect");
 const orderSelect = document.getElementById("orderSelect");
 const statusEl = document.getElementById("status");
 const downloadLink = document.getElementById("downloadLink");
+const resultThumbnails = document.getElementById("resultThumbnails");
 const resultPreview = document.getElementById("resultPreview");
 
 initTabs({ tabMerge, tabSplit, mergeSection, splitSection, initialMode: "split" });
-const setResult = createResultSetter(downloadLink, resultPreview);
+const setResult = createResultSetter(downloadLink, resultPreview, resultThumbnails);
 
 frontInput.addEventListener("change", async () => {
   try {
@@ -69,7 +70,7 @@ runMergeBtn.addEventListener("click", async () => {
       frontOrder: frontOrderSelect.value,
       backOrder: backOrderSelect.value,
     });
-    await setResult(result.bytes, result.filename);
+    await setResult(result.bytes, result.filename, result.thumbnailTags);
     statusEl.textContent = result.statusText;
   } catch (e) {
     statusEl.textContent = `結合エラー: ${e.message}`;
@@ -89,7 +90,7 @@ runSplitBtn.addEventListener("click", async () => {
   try {
     statusEl.textContent = "分割中...";
     const result = await runSplit(inputFile, { direction, order });
-    await setResult(result.bytes, result.filename);
+    await setResult(result.bytes, result.filename, result.thumbnailTags);
     statusEl.textContent = result.statusText;
   } catch (e) {
     statusEl.textContent = `分割エラー: ${e.message}`;

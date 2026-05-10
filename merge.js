@@ -11,6 +11,7 @@ export async function runMerge(frontFile, backFile, options) {
   const frontPdf = await PDFDocument.load(await fileToBytes(frontFile));
   const backPdf = await PDFDocument.load(await fileToBytes(backFile));
   const outPdf = await PDFDocument.create();
+  const thumbnailTags = [];
 
   const frontIndices = buildOrderedIndices(frontPdf, frontOrder);
   const backIndices = buildOrderedIndices(backPdf, backOrder);
@@ -20,10 +21,12 @@ export async function runMerge(frontFile, backFile, options) {
     if (i < frontIndices.length) {
       const [page] = await outPdf.copyPages(frontPdf, [frontIndices[i]]);
       outPdf.addPage(page);
+      thumbnailTags.push([`Front #${frontIndices[i] + 1}`]);
     }
     if (i < backIndices.length) {
       const [page] = await outPdf.copyPages(backPdf, [backIndices[i]]);
       outPdf.addPage(page);
+      thumbnailTags.push([`Back #${backIndices[i] + 1}`]);
     }
   }
 
@@ -31,5 +34,6 @@ export async function runMerge(frontFile, backFile, options) {
     bytes: await outPdf.save(),
     filename: `${getBaseNameWithoutPdf(frontFile.name)} merged.pdf`,
     statusText: `front: ${frontIndices.length} pages (${frontOrder}) / back: ${backIndices.length} pages (${backOrder}) -> merged: ${outPdf.getPageCount()} pages`,
+    thumbnailTags,
   };
 }

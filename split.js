@@ -7,6 +7,7 @@ export async function runSplit(inputFile, options) {
 
   const srcPdf = await PDFDocument.load(await fileToBytes(inputFile));
   const outPdf = await PDFDocument.create();
+  const thumbnailTags = [];
 
   for (const srcIndex of srcPdf.getPageIndices()) {
     const [orig] = await outPdf.copyPages(srcPdf, [srcIndex]);
@@ -43,6 +44,7 @@ export async function runSplit(inputFile, options) {
       half.setMediaBox(box.x, box.y, box.w, box.h);
       half.setRotation(degrees(rotateDeg));
       outPdf.addPage(half);
+      thumbnailTags.push([`Src #${srcIndex + 1}`, box.side === "left" ? "Left" : "Right"]);
     }
   }
 
@@ -50,5 +52,6 @@ export async function runSplit(inputFile, options) {
     bytes: await outPdf.save(),
     filename: `${getBaseNameWithoutPdf(inputFile.name)} A4.pdf`,
     statusText: `入力: ${srcPdf.getPageCount()} ページ -> 出力: ${outPdf.getPageCount()} ページ (direction=${direction}, order=${order})`,
+    thumbnailTags,
   };
 }

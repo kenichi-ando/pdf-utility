@@ -23,8 +23,9 @@
       }
       .tabs {
         display: flex;
-        gap: 8px;
         margin-bottom: 14px;
+        border-bottom: 1px solid #8884;
+        gap: 2px;
       }
       .tab-btn,
       button {
@@ -34,8 +35,22 @@
         background: transparent;
         cursor: pointer;
       }
+      .tab-btn {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        border-bottom: none;
+        background: #00000008;
+        margin-bottom: -1px;
+        padding: 10px 16px;
+      }
+      .tab-btn:hover {
+        background: #00000012;
+      }
       .tab-btn.active {
         font-weight: 700;
+        background: Canvas;
+        border-color: #8888;
+        box-shadow: 0 -1px 0 #8888;
       }
       .card {
         border: 1px solid #8884;
@@ -98,11 +113,11 @@
     <p class="help">Fully in-browser: Merge (front/back alternating) / Split (A3 spread to A4 pages)</p>
 
     <div class="tabs">
-      <button id="tabMerge" class="tab-btn active" type="button">Merge</button>
-      <button id="tabSplit" class="tab-btn" type="button">Split</button>
+      <button id="tabSplit" class="tab-btn active" type="button" aria-selected="true">Split</button>
+      <button id="tabMerge" class="tab-btn" type="button" aria-selected="false">Merge</button>
     </div>
 
-    <section id="mergeSection">
+    <section id="mergeSection" hidden>
       <div class="grid">
         <div class="card">
           <label class="label" for="frontFile">Front PDF (front side, ascending order)</label>
@@ -123,7 +138,7 @@
       </div>
     </section>
 
-    <section id="splitSection" hidden>
+    <section id="splitSection">
       <div class="card">
         <label class="label" for="splitInput">Input PDF (A3 spread)</label>
         <input id="splitInput" type="file" accept="application/pdf" />
@@ -201,10 +216,13 @@
         splitSection.hidden = isMerge;
         tabMerge.classList.toggle("active", isMerge);
         tabSplit.classList.toggle("active", !isMerge);
+        tabMerge.setAttribute("aria-selected", String(isMerge));
+        tabSplit.setAttribute("aria-selected", String(!isMerge));
       }
 
       tabMerge.addEventListener("click", () => setMode("merge"));
       tabSplit.addEventListener("click", () => setMode("split"));
+      setMode("split");
 
       async function fileToBytes(file) {
         return new Uint8Array(await file.arrayBuffer());

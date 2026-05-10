@@ -1,0 +1,19 @@
+
+# Added by falcon plugin SessionStart hook (terraform-ls support).
+# Set FALCON_PLUGIN_NO_GITIGNORE=1 in your env to suppress.
+# NOTE: .terraform.lock.hcl is intentionally NOT ignored — it pins
+# provider versions across the team and SHOULD be committed.
+.terraform/
+*.tfstate
+*.tfstate.backup
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+# macOS
+.DS_Store

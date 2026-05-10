@@ -1,29 +1,17 @@
 # PDF Utility
 
-Browser-based PDF utility with two modes:
+https://kenichi-ando.github.io/pdf-utility/
 
-Site URL: https://kenichi-ando.github.io/pdf-utility/
+## Features (できること)
 
-- Merge: interleave `front` and reversed `back` pages  
-  (`front[0], back[-1], front[1], back[-2], ...`)
-- Split: split A3 spread pages into two A4-like pages with rotation/order options
+### Split & Combine
 
-## Files
+Split spread pages into two pages. (見開きページを2ページに分割)
 
-- `index.html` - main app (single-file web UI)
+![Split & Combine image](assets/split.png)
 
-## How to use
+### Interleave Merge
 
-1. Open `index.html` in a modern browser.
-2. Select mode:
-   - **Merge**: choose Front PDF and Back PDF, then click **Merge PDF**
-   - **Split**: choose input PDF, set rotation/order, then click **Split PDF**
-3. Preview the result and download from the generated link.
+Interleave Front and Back PDFs page-by-page with selectable order for each side. (表面PDF と 裏面PDF を交互に結合。各PDFの順番指定可)
 
-## Notes
-
-- Runs fully in the browser (no server-side processing).
-- Uses CDN modules:
-  - `pdf-lib`
-  - `pdfjs-dist`
-- For best compatibility (especially on mobile), serve over `https` when possible.
+![Interleave Merge image](assets/merge.png)

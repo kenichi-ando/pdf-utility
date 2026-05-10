@@ -2,6 +2,8 @@
 
 Browser-based PDF utility with two modes:
 
+Site URL: https://kenichi-ando.github.io/pdf-utility/
+
 - Merge: interleave `front` and reversed `back` pages  
   (`front[0], back[-1], front[1], back[-2], ...`)
 - Split: split A3 spread pages into two A4-like pages with rotation/order options

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ja">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -95,7 +95,7 @@
   </head>
   <body>
     <h1>PDF Utility</h1>
-    <p class="help">ブラウザ内で完結: Merge(表裏交互) / Split(A3見開き→A4分割)</p>
+    <p class="help">Fully in-browser: Merge (front/back alternating) / Split (A3 spread to A4 pages)</p>
 
     <div class="tabs">
       <button id="tabMerge" class="tab-btn active" type="button">Merge</button>
@@ -105,19 +105,19 @@
     <section id="mergeSection">
       <div class="grid">
         <div class="card">
-          <label class="label" for="frontFile">Front PDF（表面、昇順）</label>
+          <label class="label" for="frontFile">Front PDF (front side, ascending order)</label>
           <input id="frontFile" type="file" accept="application/pdf" />
           <div id="frontMeta" class="meta"></div>
           <canvas id="frontCanvas" class="preview-canvas"></canvas>
         </div>
         <div class="card">
-          <label class="label" for="backFile">Back PDF（裏面、逆順でスキャン済み）</label>
+          <label class="label" for="backFile">Back PDF (back side, scanned in reverse order)</label>
           <input id="backFile" type="file" accept="application/pdf" />
           <div id="backMeta" class="meta"></div>
           <canvas id="backCanvas" class="preview-canvas"></canvas>
         </div>
       </div>
-      <p class="help">順序: front[0], back[-1], front[1], back[-2], ...（片方が尽きたら残りを追加）</p>
+      <p class="help">Order: front[0], back[-1], front[1], back[-2], ... (append remaining pages when one side runs out)</p>
       <div class="actions">
         <button id="runMergeBtn" type="button">Merge PDF</button>
       </div>
@@ -125,7 +125,7 @@
 
     <section id="splitSection" hidden>
       <div class="card">
-        <label class="label" for="splitInput">Input PDF（A3見開き）</label>
+        <label class="label" for="splitInput">Input PDF (A3 spread)</label>
         <input id="splitInput" type="file" accept="application/pdf" />
         <div id="splitMeta" class="meta"></div>
         <canvas id="splitCanvas" class="preview-canvas"></canvas>
@@ -135,16 +135,16 @@
           <label>
             Rotation:
             <select id="directionSelect">
-              <option value="cw" selected>cw (時計回り90°)</option>
-              <option value="ccw">ccw (反時計回り90°)</option>
-              <option value="none">none (回転なし)</option>
+              <option value="none" selected>none (no rotation)</option>
+              <option value="cw">cw (90° clockwise)</option>
+              <option value="ccw">ccw (90° counterclockwise)</option>
             </select>
           </label>
           <label>
             Order:
             <select id="orderSelect">
-              <option value="LR" selected>LR (左→右)</option>
-              <option value="RL">RL (右→左)</option>
+              <option value="LR" selected>LR (left to right)</option>
+              <option value="RL">RL (right to left)</option>
             </select>
           </label>
         </div>
@@ -251,6 +251,10 @@
         downloadLink.hidden = false;
       }
 
+      function getBaseNameWithoutPdf(fileName) {
+        return fileName.replace(/\.pdf$/i, "");
+      }
+
       frontInput.addEventListener("change", async () => {
         try {
           await updateSinglePreview(frontInput, frontMeta, frontCanvas, "Front");
@@ -279,7 +283,7 @@
         const frontFile = frontInput.files?.[0];
         const backFile = backInput.files?.[0];
         if (!frontFile || !backFile) {
-          statusEl.textContent = "Front と Back の両方のPDFを選択してください。";
+          statusEl.textContent = "Please select both Front and Back PDF files.";
           return;
         }
 
@@ -305,7 +309,8 @@
           }
 
           const mergedBytes = await outPdf.save();
-          await setResult(mergedBytes, "merged.pdf");
+          const baseName = getBaseNameWithoutPdf(frontFile.name);
+          await setResult(mergedBytes, `${baseName} merged.pdf`);
           statusEl.textContent =
             `front: ${frontIndices.length} pages / back: ${backIndicesReversed.length} pages -> merged: ${outPdf.getPageCount()} pages`;
         } catch (e) {
@@ -316,7 +321,7 @@
       runSplitBtn.addEventListener("click", async () => {
         const inputFile = splitInput.files?.[0];
         if (!inputFile) {
-          statusEl.textContent = "Split対象のPDFを選択してください。";
+          statusEl.textContent = "Please select a PDF file to split.";
           return;
         }
 
@@ -368,7 +373,8 @@
           }
 
           const splitBytes = await outPdf.save();
-          await setResult(splitBytes, "split_a4.pdf");
+          const baseName = getBaseNameWithoutPdf(inputFile.name);
+          await setResult(splitBytes, `${baseName} A4.pdf`);
           statusEl.textContent =
             `input: ${srcPdf.getPageCount()} pages -> output: ${outPdf.getPageCount()} pages (direction=${direction}, order=${order})`;
         } catch (e) {

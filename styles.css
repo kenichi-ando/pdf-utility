@@ -1,36 +1,51 @@
 :root {
-  color-scheme: light dark;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --bg: #f6f8fc;
+  --card-bg: #ffffff;
+  --text: #1e293b;
+  --muted: #5b6b81;
+  --border: #d8e0ef;
+  --primary: #2563eb;
+  --primary-soft: #e8f0ff;
 }
 
 body {
   margin: 24px;
-  line-height: 1.4;
+  line-height: 1.45;
+  color: var(--text);
+  background: radial-gradient(circle at top right, #eaf2ff 0, var(--bg) 45%);
 }
 
 h1 {
   margin: 0 0 8px;
-  font-size: 1.5rem;
+  font-size: 1.6rem;
 }
 
 .help {
   margin: 0 0 14px;
-  color: #666;
+  color: var(--muted);
 }
 
 .tabs {
   display: flex;
   margin-bottom: 14px;
-  border-bottom: 1px solid #8884;
-  gap: 2px;
+  border-bottom: 1px solid var(--border);
+  gap: 6px;
+}
+
+.tab-btn,
+button,
+select,
+input[type="file"] {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 9px 14px;
+  background: #fff;
+  color: var(--text);
 }
 
 .tab-btn,
 button {
-  border: 1px solid #8886;
-  border-radius: 8px;
-  padding: 8px 14px;
-  background: transparent;
   cursor: pointer;
 }
 
@@ -38,27 +53,39 @@ button {
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
   border-bottom: none;
-  background: #00000008;
+  background: #f7faff;
   margin-bottom: -1px;
-  padding: 10px 16px;
+  font-weight: 600;
 }
 
 .tab-btn:hover {
-  background: #00000012;
+  background: #edf4ff;
 }
 
 .tab-btn.active {
-  font-weight: 700;
-  background: Canvas;
-  border-color: #8888;
-  box-shadow: 0 -1px 0 #8888;
+  background: var(--card-bg);
+  border-color: #bfccec;
+  box-shadow: 0 -1px 0 #bfccec;
+}
+
+button {
+  background: linear-gradient(180deg, #2d7cff 0%, #2563eb 100%);
+  color: #fff;
+  border-color: #1f57cf;
+  font-weight: 600;
+}
+
+button:hover {
+  filter: brightness(1.04);
 }
 
 .card {
-  border: 1px solid #8884;
-  border-radius: 12px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
   padding: 14px;
   margin-bottom: 12px;
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.06);
 }
 
 .grid {
@@ -75,15 +102,15 @@ button {
 
 .meta {
   margin-top: 8px;
-  color: #666;
+  color: var(--muted);
   min-height: 1.2em;
 }
 
 .preview-canvas {
   margin-top: 10px;
   width: 100%;
-  border: 1px solid #8884;
-  border-radius: 6px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
   background: #fff;
 }
 
@@ -104,14 +131,29 @@ button {
 .status {
   margin-top: 8px;
   min-height: 1.2em;
-  color: #666;
+  color: var(--muted);
+}
+
+#downloadLink {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+  background: var(--primary-soft);
+  border: 1px solid #c8dafd;
+  border-radius: 10px;
+  padding: 9px 14px;
+}
+
+#downloadLink:hover {
+  background: #dce9ff;
 }
 
 iframe {
   width: 100%;
   min-height: 620px;
-  border: 1px solid #8884;
-  border-radius: 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
 }
 
 [hidden] {

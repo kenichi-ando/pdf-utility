@@ -18,19 +18,19 @@
     <section id="mergeSection" hidden>
       <div class="grid">
         <div class="card">
-          <label class="label" for="frontFile">Front PDF（表面、昇順）</label>
+          <label class="label" for="frontFile">Front PDF（表面）</label>
           <input id="frontFile" type="file" accept="application/pdf" />
           <div id="frontMeta" class="meta"></div>
           <canvas id="frontCanvas" class="preview-canvas"></canvas>
         </div>
         <div class="card">
-          <label class="label" for="backFile">Back PDF（裏面、逆順でスキャン済み）</label>
+          <label class="label" for="backFile">Back PDF（裏面）</label>
           <input id="backFile" type="file" accept="application/pdf" />
           <div id="backMeta" class="meta"></div>
           <canvas id="backCanvas" class="preview-canvas"></canvas>
         </div>
       </div>
-      <p class="help">順序: front[0], back[-1], front[1], back[-2], ...（片方が尽きたら残りを追加）</p>
+      <p class="help">順序: Front と Back を1ページずつ交互に結合（片方が尽きたら残りを追加）</p>
       <div class="card">
         <div class="inline-options">
           <label>

@@ -26,10 +26,3 @@ python3 -m http.server 8080
 Alternative:
 
 - Open `index.html` directly in your browser (no server).
-
-### Main Files
-
-- `index.html`: UI and end-user documentation
-- `app.js`: app entry point
-- `split.js`: spread page split logic
-- `merge.js`: front/back interleave merge logic

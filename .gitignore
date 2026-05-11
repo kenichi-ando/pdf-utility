@@ -17,3 +17,7 @@ terraform.rc
 
 # macOS
 .DS_Store
+
+# Firebase local config/cache (do not commit)
+.firebaserc
+.firebase/

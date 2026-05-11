@@ -6,7 +6,7 @@ Browser-based PDF utility for splitting spread pages and interleaving front/back
 
 For usage instructions, open the website:
 
-- https://kenichi-ando.github.io/pdf-utility/
+- https://totonoe-pdf.web.app/
 
 ## Developer Notes
 

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://kenichi-ando.github.io/pdf-utility/sitemap.xml
+Sitemap: https://totonoe-pdf.web.app/sitemap.xml

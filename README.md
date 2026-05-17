@@ -6,7 +6,7 @@ Browser-based PDF utility for splitting spread pages and interleaving front/back
 
 For usage instructions, open the website:
 
-- https://totonoe-pdf.web.app/
+- https://totonoe-pdf.pages.dev/
 
 ## Developer Notes
 
@@ -26,3 +26,16 @@ python3 -m http.server 8080
 Alternative:
 
 - Open `index.html` directly in your browser (no server).
+
+### Hosting
+
+Hosted on Cloudflare Pages with GitHub auto-deploy.
+
+One-time setup in the Cloudflare dashboard (Pages → Create a project → Connect to Git):
+
+- Production branch: `main`
+- Build command: (leave empty)
+- Build output directory: `public`
+
+After connecting, every push to `main` deploys automatically to
+`https://totonoe-pdf.pages.dev/`.

@@ -1,6 +1,5 @@
 # macOS
 .DS_Store
 
-# Firebase local config/cache (do not commit)
-.firebaserc
-.firebase/
+# Cloudflare Wrangler local cache (do not commit)
+.wrangler/
